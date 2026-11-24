@@ -3,16 +3,18 @@ import java.util.IllegalFormatException;
 import java.util.Scanner;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.time.LocalDate;
 
 public class App {
     public static void main(String[] args) {
         ArrayList<Flight> flights = new ArrayList<>();
         ArrayList<Ticket> tickets = new ArrayList<>();
 
-        Flight flight1 = new Flight("DEMO101", "Алматы", "Астана", 20);
-        Flight flight2 = new Flight("DEM102", "Алматы", "Актау", 25);
-        Flight flight3 = new Flight("DEM103", "Алматы", "Берлин", 30);
-        Flight flight4 = new Flight("DEM104", "Тараз", "Актау", 20);
+        Flight flight1 = new Flight("DEMO101", "Алматы", "Астана", 20, LocalDateTime.of(2026, 12, 10, 14, 30));
+        Flight flight2 = new Flight("DEM102", "Алматы", "Актау", 25, LocalDateTime.of(2026, 12, 10, 14, 30));
+        Flight flight3 = new Flight("DEM103", "Алматы", "Берлин", 30, LocalDateTime.of(2026, 12, 10, 14, 30));
+        Flight flight4 = new Flight("DEM104", "Тараз", "Актау", 20, LocalDateTime.now().plusSeconds(30));
         flights.add(flight1);
         flights.add(flight2);
         flights.add(flight3);
@@ -52,8 +54,16 @@ public class App {
                     System.out.println("Всего рейсов: " + flights.size());
                 }
                 case "2" -> {
+                    try{
                     String destination = readDestination(scanner);
-                    printFlightByDestination(flights, destination);
+                    System.out.println("Введите дату вылета (например, 2026-10-12): ");
+                    LocalDate departureDate = LocalDate.parse(scanner.nextLine().strip());
+
+                    printFlightByDestinationAndDate(flights, destination, departureDate);
+                    
+                    } catch(DateTimeParseException e){
+                        System.out.println("Неверная дата. Пример: 2026-12-10T14:30");
+                    }
                 }
                 case "3" -> {
                     try {
@@ -146,6 +156,8 @@ public class App {
                 }
                 case "7" -> {
                     try{
+                        System.out.println("Введите дату и время отправки (например 2026-12-10T14:30): ");
+                        LocalDateTime departureTime = LocalDateTime.parse(scanner.nextLine().strip());
                         System.out.println("Введите номер рейса: ");
                         String flightNumber = scanner.nextLine().strip();
                         if(findFlightByNumber(flights, flightNumber) != null){
@@ -158,7 +170,7 @@ public class App {
                         System.out.println("Введите количество мест: ");
                         int totalSeats = Integer.parseInt(scanner.nextLine().strip());
                         
-                        Flight newFlight = new Flight(flightNumber, departureCity, arrivalCity, totalSeats);
+                        Flight newFlight = new Flight(flightNumber, departureCity, arrivalCity, totalSeats, departureTime);
                         flights.add(newFlight);
 
                         System.out.println("Рейс успешно создан");
@@ -167,6 +179,8 @@ public class App {
                         System.out.println("Количество мест нужно вводить целым числом.");
                     } catch(IllegalArgumentException e){
                         System.out.println("Ошибка данных: " + e.getMessage());
+                    }catch(DateTimeParseException e){
+                        System.out.println("Неверная дата. Пример: 2026-12-10T14:30");
                     }
                 }
                 case "0" -> {
@@ -181,13 +195,16 @@ public class App {
         scanner.close();
     }
 
-    private static void printFlightByDestination(
+    private static void printFlightByDestinationAndDate(
             ArrayList<Flight> flights,
-            String destination) {
+            String destination,
+            LocalDate departureDate) {
 
+        
         boolean found = false;
         for (Flight flight : flights) {
-            if (flight.getArrivalCity().equalsIgnoreCase(destination)) {
+            LocalDate flightDate = flight.getDepartureTime().toLocalDate();
+            if (flight.getArrivalCity().equalsIgnoreCase(destination) && flightDate.equals(departureDate)) {
                 System.out.println(flight);
                 found = true;
             }
