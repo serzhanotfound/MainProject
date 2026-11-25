@@ -1,9 +1,12 @@
+import java.math.BigDecimal;
+
 public class Ticket{
     private String ticketNumber;
     private Flight flight;
     private Passenger passenger;
     private Seat seat;
     private TicketStatus status = TicketStatus.ACTIVE;
+    private BigDecimal priceAtPurchase;
 
     public Ticket(String ticketNumber, Flight flight, Passenger passenger, Seat seat){
         if(ticketNumber == null || ticketNumber.isBlank()){
@@ -26,6 +29,7 @@ public class Ticket{
         this.flight = flight;
         this.passenger = passenger;
         this.seat = seat;
+        this.priceAtPurchase = flight.getPrice();
     }
 
     @Override
@@ -34,7 +38,9 @@ public class Ticket{
         " | Рейс: " + flight.getFlightNumber() + 
         " | Пассажир: " + passenger + 
         " | Место: " + seat.getNumber() +
+        " | Цена: " + priceAtPurchase +
         " | Статус: " + status;
+        
     }
 
     public void cancel(){
@@ -63,5 +69,9 @@ public class Ticket{
 
     public TicketStatus getStatus(){
         return status;
+    }
+
+    public BigDecimal getPriceAtPurchase(){
+        return priceAtPurchase;
     }
 }

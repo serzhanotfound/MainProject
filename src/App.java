@@ -5,16 +5,16 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 public class App {
     public static void main(String[] args) {
         ArrayList<Flight> flights = new ArrayList<>();
         ArrayList<Ticket> tickets = new ArrayList<>();
-
-        Flight flight1 = new Flight("DEMO101", "Алматы", "Астана", 20, LocalDateTime.of(2026, 12, 10, 14, 30));
-        Flight flight2 = new Flight("DEM102", "Алматы", "Актау", 25, LocalDateTime.of(2026, 12, 10, 14, 30));
-        Flight flight3 = new Flight("DEM103", "Алматы", "Берлин", 30, LocalDateTime.of(2026, 12, 10, 14, 30));
-        Flight flight4 = new Flight("DEM104", "Тараз", "Актау", 20, LocalDateTime.now().plusSeconds(30));
+        Flight flight1 = new Flight("DEMO101", "Алматы", "Астана", 20, LocalDateTime.of(2026, 12, 10, 14, 30), new BigDecimal("25000.00"));
+        Flight flight2 = new Flight("DEM102", "Алматы", "Актау", 25, LocalDateTime.of(2026, 12, 10, 14, 30), new BigDecimal("30000.00"));
+        Flight flight3 = new Flight("DEM103", "Алматы", "Берлин", 30, LocalDateTime.of(2026, 12, 10, 14, 30), new BigDecimal("45000.00"));
+        Flight flight4 = new Flight("DEM104", "Тараз", "Актау", 20, LocalDateTime.now().plusSeconds(30), new BigDecimal("50000.00") );
         flights.add(flight1);
         flights.add(flight2);
         flights.add(flight3);
@@ -169,14 +169,16 @@ public class App {
                         String arrivalCity = scanner.nextLine().strip();
                         System.out.println("Введите количество мест: ");
                         int totalSeats = Integer.parseInt(scanner.nextLine().strip());
-                        
-                        Flight newFlight = new Flight(flightNumber, departureCity, arrivalCity, totalSeats, departureTime);
+                        System.out.println("Введите цену: ");
+                        BigDecimal price = new BigDecimal(scanner.nextLine().strip());
+
+                        Flight newFlight = new Flight(flightNumber, departureCity, arrivalCity, totalSeats, departureTime, price);
                         flights.add(newFlight);
 
                         System.out.println("Рейс успешно создан");
                         System.out.println(newFlight);
                     } catch(NumberFormatException e){
-                        System.out.println("Количество мест нужно вводить целым числом.");
+                        System.out.println("Количество мест нужно вводить целым числом, а Цену через двумя нолями");
                     } catch(IllegalArgumentException e){
                         System.out.println("Ошибка данных: " + e.getMessage());
                     }catch(DateTimeParseException e){
@@ -199,7 +201,6 @@ public class App {
             ArrayList<Flight> flights,
             String destination,
             LocalDate departureDate) {
-
         
         boolean found = false;
         for (Flight flight : flights) {
@@ -210,7 +211,7 @@ public class App {
             }
         }
         if (!found) {
-            System.out.println("Рейсы на " + destination + " не найдено.");
+            System.out.println("Рейсы в город " + destination + " на " + departureDate + " не найдено.");
         }
     }
 

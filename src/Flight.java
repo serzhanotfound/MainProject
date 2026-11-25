@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 public class Flight{
     private String flightNumber;
@@ -8,8 +9,9 @@ public class Flight{
     private int totalSeats;
     private ArrayList<Seat> seats = new ArrayList<>();
     private LocalDateTime departureDateTime;
+    private BigDecimal price;
 
-    public Flight(String flightNumber, String departureCity, String arrivalCity, int totalSeats, LocalDateTime departureDateTime){
+    public Flight(String flightNumber, String departureCity, String arrivalCity, int totalSeats, LocalDateTime departureDateTime, BigDecimal price){
     
     if(flightNumber == null || flightNumber.isBlank()){
         throw new IllegalArgumentException("Номер рейса не должно быть пустым!");
@@ -33,6 +35,9 @@ public class Flight{
     throw new IllegalArgumentException(
             "Дата и время вылета должны быть в будущем!");
     }
+    if(price == null || price.compareTo(BigDecimal.ZERO) <= 0 || price.scale() > 2){
+        throw new IllegalArgumentException("Укажите положительную цену с не более чем двумя знаками после точки.");
+    }
 
     for(int number = 1; number <= totalSeats; number++){
         seats.add(new Seat(number));
@@ -43,7 +48,9 @@ public class Flight{
         this.arrivalCity = arrivalCity.strip();
         this.totalSeats = totalSeats;
         this.departureDateTime = departureDateTime;
+        this.price = price.setScale(2);
     }
+
 
     @Override
     public String toString(){
@@ -51,7 +58,8 @@ public class Flight{
                 + ": " + departureCity
                 + " -> " + arrivalCity
                 + ", мест: " + totalSeats
-                + ", вылет: " + departureDateTime;
+                + ", вылет: " + departureDateTime
+                + ", Цена: " + price + " KZT";
             }
 
     public String getFlightNumber(){
@@ -72,6 +80,10 @@ public class Flight{
 
     public LocalDateTime getDepartureTime(){
         return departureDateTime;
+    }
+
+    public BigDecimal getPrice(){
+        return price;
     }
 
     public Seat findSeatByNumber(int number){
