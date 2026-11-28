@@ -5,16 +5,22 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.LocalDate;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Path;
 
 public class App {
     public static void main(String[] args) {
         ArrayList<Flight> flights = new ArrayList<>();
         ArrayList<Ticket> tickets = new ArrayList<>();
-        Flight flight1 = new Flight("DEMO101", "Алматы", "Астана", 20, LocalDateTime.of(2026, 12, 10, 14, 30), new BigDecimal("25000.00"));
-        Flight flight2 = new Flight("DEM102", "Алматы", "Актау", 25, LocalDateTime.of(2026, 12, 10, 14, 30), new BigDecimal("30000.00"));
-        Flight flight3 = new Flight("DEM103", "Алматы", "Берлин", 30, LocalDateTime.of(2026, 12, 10, 14, 30), new BigDecimal("45000.00"));
-        Flight flight4 = new Flight("DEM104", "Тараз", "Актау", 20, LocalDateTime.now().plusSeconds(30), new BigDecimal("50000.00") );
+        Flight flight1 = new Flight("DEMO101", "Алматы", "Астана", 20, LocalDateTime.of(2026, 12, 10, 14, 30),
+                new BigDecimal("25000.00"));
+        Flight flight2 = new Flight("DEM102", "Алматы", "Актау", 25, LocalDateTime.of(2026, 12, 10, 14, 30),
+                new BigDecimal("30000.00"));
+        Flight flight3 = new Flight("DEM103", "Алматы", "Берлин", 30, LocalDateTime.of(2026, 12, 10, 14, 30),
+                new BigDecimal("45000.00"));
+        Flight flight4 = new Flight("DEM104", "Тараз", "Актау", 20, LocalDateTime.now().plusSeconds(30),
+                new BigDecimal("50000.00"));
         flights.add(flight1);
         flights.add(flight2);
         flights.add(flight3);
@@ -23,25 +29,19 @@ public class App {
 
         TicketService service = new TicketService();
         int nextTicketNumber = 1;
-
-        Ticket first = service.buyTicket("T1", flight1, passenger, 1);
-        first.cancel();
-        Ticket second = service.buyTicket("T2", flight1, passenger, 1);
-        // first.cancel();
-        System.out.println(second);
-        System.out.println(first);
-
         System.out.println("=== Авиасистема ===");
 
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         String choice;
+        FlightService flightService = new FlightService();
 
         do {
             System.out.println(
-                    "1. Показать все рейсы \n2. Найти рейсы по городу прибытия " + 
-                    "\n3. Купить билеты \n4. Показать купленные билеты " + 
-                    "\n5. Отменить Билет \n6. Показать свободные места " + 
-                    "\n7. Добавить рейсы \n0. Выход");
+                    "1. Показать все рейсы \n2. Найти рейсы по городу прибытия " +
+                            "\n3. Купить билеты \n4. Показать купленные билеты " +
+                            "\n5. Отменить Билет \n6. Показать свободные места " +
+                            "\n7. Добавить рейсы " +
+                            "\n8. Сохранить рейсы \n0. Выход");
             System.out.println("Выберите действие: ");
             choice = scanner.nextLine().strip();
 
@@ -54,14 +54,14 @@ public class App {
                     System.out.println("Всего рейсов: " + flights.size());
                 }
                 case "2" -> {
-                    try{
-                    String destination = readDestination(scanner);
-                    System.out.println("Введите дату вылета (например, 2026-10-12): ");
-                    LocalDate departureDate = LocalDate.parse(scanner.nextLine().strip());
+                    try {
+                        String destination = readDestination(scanner);
+                        System.out.println("Введите дату вылета (например, 2026-10-12): ");
+                        LocalDate departureDate = LocalDate.parse(scanner.nextLine().strip());
 
-                    printFlightByDestinationAndDate(flights, destination, departureDate);
-                    
-                    } catch(DateTimeParseException e){
+                        printFlightByDestinationAndDate(flights, destination, departureDate);
+
+                    } catch (DateTimeParseException e) {
                         System.out.println("Неверная дата. Пример: 2026-12-10T14:30");
                     }
                 }
@@ -131,38 +131,38 @@ public class App {
                     }
                 }
                 case "6" -> {
-                    try{
-                    System.out.println("Введите номер рейса: ");
-                    String flightNum = scanner.nextLine().strip();
-                    Flight selectedflight = findFlightByNumber(flights, flightNum);
-                    if(selectedflight == null){
-                        throw new IllegalArgumentException("Рейс не найден");
-                    }
+                    try {
+                        System.out.println("Введите номер рейса: ");
+                        String flightNum = scanner.nextLine().strip();
+                        Flight selectedflight = findFlightByNumber(flights, flightNum);
+                        if (selectedflight == null) {
+                            throw new IllegalArgumentException("Рейс не найден");
+                        }
 
-                    ArrayList<Seat> availableSeats = selectedflight.findAvailableSeats();
-                    if(availableSeats.isEmpty()){
-                        System.out.println("Нету свободных мест");
-                    }else{
-                        System.out.println("Свободных мест: " + availableSeats.size());
-                        
-                        for(Seat seat : availableSeats){
-                            System.out.println(seat);
-                        }    
-                    }
-                    
-                    }catch(IllegalArgumentException e){
+                        ArrayList<Seat> availableSeats = selectedflight.findAvailableSeats();
+                        if (availableSeats.isEmpty()) {
+                            System.out.println("Нету свободных мест");
+                        } else {
+                            System.out.println("Свободных мест: " + availableSeats.size());
+
+                            for (Seat seat : availableSeats) {
+                                System.out.println(seat);
+                            }
+                        }
+
+                    } catch (IllegalArgumentException e) {
                         System.out.println("Ошибка данных: " + e.getMessage());
                     }
                 }
                 case "7" -> {
-                    try{
+                    try {
                         System.out.println("Введите дату и время отправки (например 2026-12-10T14:30): ");
                         LocalDateTime departureTime = LocalDateTime.parse(scanner.nextLine().strip());
                         System.out.println("Введите номер рейса: ");
                         String flightNumber = scanner.nextLine().strip();
-                        if(findFlightByNumber(flights, flightNumber) != null){
+                        if (findFlightByNumber(flights, flightNumber) != null) {
                             throw new IllegalArgumentException("Рейс с таким номером уже существует");
-                        }    
+                        }
                         System.out.println("Введите город отправления: ");
                         String departureCity = scanner.nextLine().strip();
                         System.out.println("Введите город прибытия: ");
@@ -172,17 +172,27 @@ public class App {
                         System.out.println("Введите цену: ");
                         BigDecimal price = new BigDecimal(scanner.nextLine().strip());
 
-                        Flight newFlight = new Flight(flightNumber, departureCity, arrivalCity, totalSeats, departureTime, price);
+                        Flight newFlight = flightService.createFlight(flightNumber, departureCity, arrivalCity,
+                                totalSeats, departureTime, price);
                         flights.add(newFlight);
 
                         System.out.println("Рейс успешно создан");
                         System.out.println(newFlight);
-                    } catch(NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         System.out.println("Количество мест нужно вводить целым числом, а Цену через двумя нолями");
-                    } catch(IllegalArgumentException e){
+                    } catch (IllegalArgumentException e) {
                         System.out.println("Ошибка данных: " + e.getMessage());
-                    }catch(DateTimeParseException e){
+                    } catch (DateTimeParseException e) {
                         System.out.println("Неверная дата. Пример: 2026-12-10T14:30");
+                    }
+                }
+                case "8" -> {
+                    Path flightsFile = Path.of("flights.txt");
+                    try {
+                        FlightStorage.save(flightsFile, flights);
+                        System.out.println("Рейсы успешно сохранены!");
+                    } catch (IOException e) {
+                        System.out.println("Ошибка при сохранений рейсов: " + e.getMessage());
                     }
                 }
                 case "0" -> {
@@ -201,7 +211,7 @@ public class App {
             ArrayList<Flight> flights,
             String destination,
             LocalDate departureDate) {
-        
+
         boolean found = false;
         for (Flight flight : flights) {
             LocalDate flightDate = flight.getDepartureTime().toLocalDate();

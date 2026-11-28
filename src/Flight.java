@@ -22,7 +22,7 @@ public class Flight{
     if(arrivalCity == null || arrivalCity.isBlank()){
         throw new IllegalArgumentException("Город прибытия не должно быть пустым!");
     }
-    if(departureCity.equalsIgnoreCase(arrivalCity.strip())){
+    if(departureCity.strip().equalsIgnoreCase(arrivalCity.strip())){
         throw new IllegalArgumentException("Город отправки не должно совпадать с городом прибытия!");
     }
     if(totalSeats <= 0){
@@ -30,10 +30,6 @@ public class Flight{
     }
     if(departureDateTime == null){
         throw new IllegalArgumentException("Дата и время отправления не должно быть пустым!");
-    }
-    if (!departureDateTime.isAfter(LocalDateTime.now())) {
-    throw new IllegalArgumentException(
-            "Дата и время вылета должны быть в будущем!");
     }
     if(price == null || price.compareTo(BigDecimal.ZERO) <= 0 || price.scale() > 2){
         throw new IllegalArgumentException("Укажите положительную цену с не более чем двумя знаками после точки.");
